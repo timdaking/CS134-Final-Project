@@ -73,4 +73,8 @@ class ofApp : public ofBaseApp{
 		vector<Box> bboxList;
 
 		const float selectionRange = 4.0;
+    
+    
+    
+    ofImage background;
 };

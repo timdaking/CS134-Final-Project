@@ -1,15 +1,4 @@
 
-//--------------------------------------------------------------
-//
-//  Kevin M. Smith
-//
-//  Octree Test - startup scene
-// 
-//
-//  Student Name:   < Your Name goes Here >
-//  Date: <date of last version>
-
-
 #include "ofApp.h"
 #include "Util.h"
 #include "glm/gtx/intersect.hpp"
@@ -18,6 +7,8 @@
 // setup scene, lighting, state and load geometry
 //
 void ofApp::setup(){
+    background.load("images/space.jpg");
+    
 	bWireframe = false;
 	bDisplayPoints = false;
 	bAltKeyDown = false;
@@ -39,6 +30,11 @@ void ofApp::setup(){
 
 	mars.loadModel("geo/mars-low-5x-v2.obj");
 	mars.setScaleNormalization(false);
+    mars.setScale(5, 5, 5);
+    lander.loadModel("get/lander.obj");
+    lander.setScale(0.3, 0.3, 0.3);
+    lander.setScaleNormalization(false);
+    
 
 	// create sliders for testing
 	//
@@ -66,7 +62,10 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	ofBackground(ofColor::black);
+    ofSetColor(255, 255, 255);
+    ofDisableDepthTest();
+    background.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+    ofEnableDepthTest();
 
 	glDepthMask(false);
 	if (!bHide) gui.draw();
@@ -492,16 +491,16 @@ void ofApp::dragEvent2(ofDragInfo dragInfo) {
 	mouseIntersectPlane(ofVec3f(0, 0, 0), cam.getZAxis(), point);
 	if (lander.loadModel(dragInfo.files[0])) {
 		lander.setScaleNormalization(false);
-//		lander.setScale(.1, .1, .1);
-	//	lander.setPosition(point.x, point.y, point.z);
-		lander.setPosition(1, 1, 0);
+		lander.setScale(.1, .1, .1);
+		lander.setPosition(point.x, point.y, point.z);
+		//lander.setPosition(1, 1, 0);
 
 		bLanderLoaded = true;
 		for (int i = 0; i < lander.getMeshCount(); i++) {
 			bboxList.push_back(Octree::meshBounds(lander.getMesh(i)));
 		}
 
-		cout << "Mesh Count: " << lander.getMeshCount() << endl;
+//		cout << "Mesh Count: " << lander.getMeshCount() << endl;
 	}
 	else cout << "Error: Can't load model" << dragInfo.files[0] << endl;
 }
