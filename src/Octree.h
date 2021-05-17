@@ -44,6 +44,7 @@ public:
 	TreeNode root;
 	bool bUseFaces = false;
 
+    bool intersect(const ofVec3f &point, TreeNode &node);
 	// debug;
 	//
 	int strayVerts= 0;

@@ -283,8 +283,19 @@ void Octree::drawLeafNodes(TreeNode & node) {
         }
     }
 }
-////
 
-
-
-
+bool Octree::intersect(const ofVec3f &point, TreeNode &node) {
+    if (node.children.size() == 0) {
+        if (node.points.size() == 0) {
+            return false;
+        }
+        return node.box.inside(Vector3(point.x, point.y, point.z));
+    }
+    for (int i = 0; i < node.children.size(); ++i) {
+        TreeNode currentChild = node.children[i];
+        if (currentChild.box.inside(Vector3(point.x, point.y, point.z))){
+            return intersect(point, currentChild);
+        }
+    }
+    return false;
+}

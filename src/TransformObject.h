@@ -12,5 +12,6 @@ protected:
 	ofVec3f position, scale;
 	float	rotation;
 	bool	bSelected;
-	void setPosition(const ofVec3f &);
+public:
+    void setPosition(const ofVec3f &);
 };
