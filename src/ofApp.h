@@ -98,11 +98,15 @@ public:
     
     ImpulseForce impulseForce;
     ParticleSystem sys;
-    ThrusterForce thruster;
+    ThrusterForce thrust;
     ParticleEmitter engine;
-    Particle ship;
+    Particle rocket;
     
     ofSoundPlayer noise;
     bool soundFileLoaded = false;
     
+    float thrustTime;
+    float fuel;
+    
+    ofLight landing1, landing2, landing3, areaLight;
 };

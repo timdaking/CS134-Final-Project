@@ -44,8 +44,7 @@ void ParticleEmitter::init() {
     type = DirectionalEmitter;
     groupSize = 1;
     damping = .99;
-    //i changed it to blue
-    particleColor = ofColor::blue;
+    particleColor = ofColor::orange;
     position = ofVec3f(0,0,0);
 }
 

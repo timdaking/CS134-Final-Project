@@ -33,7 +33,7 @@ void ofApp::setup(){
     mars.setScale(4, 4, 4);
     mars.setScaleNormalization(false);
     lander.loadModel("geo/lander.obj");
-    lander.setScale(0.2, 0.2, 0.2);
+    lander.setScale(0.4, 0.4, 0.4);
     lander.setScaleNormalization(false);
     
     //camera module
@@ -73,7 +73,6 @@ void ofApp::setup(){
     rocket.position.set(0, 10, 0);
     lander.setPosition(rocket.position.x, rocket.position.y, rocket.position.z);
     sys.add(rocket);
-    
     sys.addForce(&thrust);
     sys.addForce(&impulseForce);
     
@@ -86,23 +85,27 @@ void ofApp::setup(){
     //rocket's gravity force
     sys.addForce(new GravityForce(ofVec3f(0, -.01, 0)));
     
-    // create sliders for testing
-    //
-    /*
-     gui.setup();
-     gui.add(numLevels.setup("Number of Octree Levels", 1, 1, 10));
-     bHide = false;
-     */
+    //fuel system
+    fuel = 120000;
     
-    //  Create Octree for testing.
-    //
+    //lighting system
+    areaLight.setup();
+    areaLight.enable();
+    areaLight.setAreaLight(10, 10);
+    areaLight.setPosition(100,100,100);
     
-    /*octree.create(mars.getMesh(0), 20);
-     
-     cout << "Number of Verts: " << mars.getMesh(0).getNumVertices() << endl;
-     
-     testBox = Box(Vector3(3, 3, 0), Vector3(5, 5, 2));
-     */
+    landing1.setup();
+    landing1.enable();
+    landing1.setSpotlight();
+    landing1.setScale(.05);
+    landing1.setSpotlightCutOff(15);
+    landing1.setAttenuation(2, .001, .001);
+    landing1.setAmbientColor(ofFloatColor(0.1, 0.1, 0.1));
+    landing1.setDiffuseColor(ofFloatColor(1, 1, 1));
+    landing1.setSpecularColor(ofFloatColor(1, 1, 1));
+    landing1.rotate(-10, ofVec3f(1, 0, 0));
+    landing1.rotate(-45, ofVec3f(0, 1, 0));
+    landing1.setPosition(40, 40, 5);
 }
 
 //--------------------------------------------------------------
@@ -134,6 +137,10 @@ void ofApp::draw() {
     camera->begin();
     ofPushMatrix();
     
+    //landing1.draw();
+    
+    
+    
     //draw particle and engine
     sys.draw();
     engine.draw();
@@ -159,6 +166,10 @@ void ofApp::draw() {
     
     ofNoFill();
     camera->end();
+    
+    string fuelAmount;
+    fuelAmount += "Fuel: " + std::to_string(fuel) + "ms";
+    ofDrawBitmapString(fuelAmount, ofPoint(10, 20));
 }
 
 
@@ -247,6 +258,7 @@ void ofApp::keyPressed(int key) {
         case OF_KEY_DEL:
             break;
         case OF_KEY_UP:
+            thrustTime = ofGetElapsedTimeMillis();
             soundPlayer();
             thrust.add(ofVec3f(0, .5, 0));
             engine.setVelocity(ofVec3f(0, -5, 0));
@@ -322,7 +334,8 @@ void ofApp::keyReleased(int key) {
     noise.stop();
     engine.stop();
     thrust.set(ofVec3f(0, 0, 0));
-    
+    fuel -= thrustTime;
+    ofResetElapsedTimeCounter();
     switch (key) {
             
         case OF_KEY_ALT:
@@ -665,6 +678,6 @@ void ofApp::detectCollision() {
     if (octrees.intersect(touchPoint, octrees.root)) {
         collided = true;
         cout << "landed" <<endl;
-        impulseForce.apply(1.5 * (-velocity * 3.6));
+        impulseForce.apply(1.5 * (-velocity * 5));
     }
 }
