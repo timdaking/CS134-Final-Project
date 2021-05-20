@@ -88,6 +88,7 @@ void ofApp::setup(){
     //fuel system, 120000ms = 120s
     fuel = 120000;
     thrustTime = 0;
+    ofResetElapsedTimeCounter();
     
     //lighting system
     areaLight.setup();
@@ -185,6 +186,16 @@ void ofApp::draw() {
     string fuelAmount;
     fuelAmount += "Fuel: " + std::to_string(fuel) + " ms remaining";
     ofDrawBitmapString(fuelAmount, ofPoint(10, 20));
+    
+    string landed;
+    if(collided == true){
+        landed += "Landing Status: landed";
+        ofDrawBitmapString(landed, ofPoint(10, 40));
+    }
+    else{
+        landed += "Landing Status: Not Landed";
+        ofDrawBitmapString(landed, ofPoint(10, 40));
+    }
 }
 
 
@@ -765,13 +776,16 @@ void ofApp::soundPlayer() {
 void ofApp::detectCollision() {
     touchPoint = sys.particles[0].position;
     ofVec3f velocity = sys.particles[0].velocity;
-    if (velocity.y > 5) {
-        impulseForce.apply(1.5 * (-velocity * 500));
-        return;
-    }
+    cout<<velocity<<endl;
     if (octrees.intersect(touchPoint, octrees.root)) {
         collided = true;
-        cout << "landed" <<endl;
-        impulseForce.apply(1.5 * (-velocity * 5));
+        impulseForce.apply(1.5 * (-velocity * 2));
+    }
+    else{
+        collided = false;
+    }
+    
+    if (octrees.intersect(touchPoint, octrees.root) && velocity.y<-7){
+        impulseForce.apply(50 * (-velocity * 4));
     }
 }
