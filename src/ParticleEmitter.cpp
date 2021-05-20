@@ -21,7 +21,7 @@ ParticleEmitter::ParticleEmitter(ParticleSystem *s) {
 }
 
 ParticleEmitter::~ParticleEmitter() {
-
+    
     // deallocate particle system if emitter created one internally
     //
     if (createdSys) delete sys;
@@ -53,23 +53,22 @@ void ParticleEmitter::init() {
 void ParticleEmitter::draw() {
     if (visible) {
         switch (type) {
-        case DirectionalEmitter:
-            ofDrawSphere(position, radius/10);  // just draw a small sphere for point emitters
-            break;
-        case SphereEmitter:
+            case DirectionalEmitter:
+                ofDrawSphere(position, radius/10);  // just draw a small sphere for point emitters
+                break;
+            case SphereEmitter:
                 ofDrawCircle(position, radius/10);
                 break;
-        case RadialEmitter:
-            ofDrawSphere(position, radius/10);  // just draw a small sphere as a placeholder
-            break;
+            case RadialEmitter:
+                ofDrawSphere(position, radius/10);  // just draw a small sphere as a placeholder
+                break;
                 
                 //i added this -luis
-        case DiscEmitter:
-            ofDrawSphere(position, radius/10);  // just draw a small sphere as a placeholder
-            break;
-                //case for disc emitter
-        default:
-            break;
+            case DiscEmitter:
+                ofDrawSphere(position, radius/10);  // just draw a small sphere as a placeholder
+                break;
+            default:
+                break;
         }
     }
     sys->draw();
@@ -85,78 +84,73 @@ void ParticleEmitter::stop() {
     fired = false;
 }
 void ParticleEmitter::update() {
-
+    
     float time = ofGetElapsedTimeMillis();
-
+    
     if (oneShot && started) {
         if (!fired) {
-
+            
             // spawn a new particle(s)
             //
             for (int i = 0; i < groupSize; i++) {
                 spawn(time);
             }
-
+            
             lastSpawned = time;
         }
         fired = true;
         stop();
     }
-
+    
     else if (((time - lastSpawned) > (1000.0 / rate)) && started) {
-
+        
         // spawn a new particle(s)
         //
         for (int i= 0; i < groupSize; i++)
-            spawn(time);
-    
+        spawn(time);
+        
         lastSpawned = time;
     }
-
+    
     sys->update();
 }
 
 // spawn a single particle.  time is current time of birth
 //
 void ParticleEmitter::spawn(float time) {
-
+    
     Particle particle;
-
+    
     // set initial velocity and position
     // based on emitter type
     //
     switch (type) {
-    case RadialEmitter:
-      {
-        ofVec3f dir = ofVec3f(ofRandom(-1, 1), ofRandom(-1, 1), ofRandom(-1, 1));
-        float speed = velocity.length();
-        particle.velocity = dir.getNormalized() * speed;
-        particle.position.set(position);
-      }
-    break;
-    case SphereEmitter:
-        break;
-    case DirectionalEmitter:
-        particle.velocity = velocity;
-        particle.position.set(position);
-        break;
+        case RadialEmitter:
+        {
+            ofVec3f dir = ofVec3f(ofRandom(-1, 1), ofRandom(-1, 1), ofRandom(-1, 1));
+            float speed = velocity.length();
+            particle.velocity = dir.getNormalized() * speed;
+            particle.position.set(position);
+        }
+            break;
+        case SphereEmitter:
+            break;
+        case DirectionalEmitter:
+            particle.velocity = velocity;
+            particle.position.set(position);
+            break;
             
-            // I added this -luis
-    case DiscEmitter:   // x-z plane
-      {
-          ofVec3f dir = ofVec3f(ofRandom(-1, 1), 0, ofRandom(-1, 1));
-         // float speed = velocity.length();
-          particle.velocity = velocity;
-          ofVec3f newPosition = ofVec3f(ofRandom(-1, 1), 0, ofRandom(-1, 1));
-          newPosition = newPosition.getNormalized();
-          particle.position.set((newPosition * radius)/5 + position);
-          
-         // Removed my code as it is part of the assignment - KMS
-          
-      }
-        break;
+        case DiscEmitter:   // x-z plane
+        {
+            ofVec3f dir = ofVec3f(ofRandom(-1, 1), ofRandom(-.2, .2), ofRandom(-1, 1));
+            
+            particle.position.set(position + (dir.normalized() * radius));
+            particle.velocity = velocity;
+            
+        }
+            break;
     }
-
+    
     // other particle attributes
     //
     if (randomLife) {
@@ -168,7 +162,7 @@ void ParticleEmitter::spawn(float time) {
     particle.mass = mass;
     particle.damping = damping;
     particle.color = particleColor;
-
+    
     // add to system
     //
     sys->add(particle);

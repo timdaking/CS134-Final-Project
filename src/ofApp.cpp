@@ -55,7 +55,7 @@ void ofApp::setup(){
     ofSetBackgroundColor(ofColor::black);
     
     //sound system
-    if (noise.load("sounds/thruster.wav")) {
+    if (noise.load("sounds/thruster2.mp3")) {
         noise.setLoop(true);
         soundFileLoaded = true;
     }
@@ -69,7 +69,7 @@ void ofApp::setup(){
     rocket.radius = 0.010;
     
     //rocket lander particles
-    rocket.lifespan = 10000;
+    rocket.lifespan = 100;
     rocket.position.set(0, 10, 0);
     lander.setPosition(rocket.position.x, rocket.position.y, rocket.position.z);
     sys.add(rocket);
@@ -85,8 +85,9 @@ void ofApp::setup(){
     //rocket's gravity force
     sys.addForce(new GravityForce(ofVec3f(0, -.01, 0)));
     
-    //fuel system
+    //fuel system, 120000ms = 120s
     fuel = 120000;
+    thrustTime = 0;
     
     //lighting system
     areaLight.setup();
@@ -129,46 +130,60 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
     
-    ofSetColor(255, 255, 255);
-    ofDisableDepthTest();
-    background.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
-    ofEnableDepthTest();
-    
-    camera->begin();
-    ofPushMatrix();
-    
-    //landing1.draw();
-    
-    
-    
-    //draw particle and engine
-    sys.draw();
-    engine.draw();
-    
-    if (bWireframe) {                    // wireframe mode  (include axis)
-        ofDisableLighting();
-        ofSetColor(ofColor::red);
-        mars.drawWireframe();
-        lander.drawWireframe();
-        if (bRoverLoaded) {
-            rover.drawWireframe();
-        }
-    }
-    else {
-        ofEnableLighting();              // shaded mode
-        mars.drawFaces();
-        lander.drawFaces();
+    if(fuel > 0){
+        bLanderLoaded = true;
+        gameOver = false;
+        ofSetColor(255, 255, 255);
+        ofDisableDepthTest();
+        background.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+        ofEnableDepthTest();
         
-        if (bRoverLoaded) {
-            rover.drawFaces();
+        camera->begin();
+        ofPushMatrix();
+        
+        landing1.draw();
+        
+        
+        
+        //draw particle and engine
+        sys.draw();
+        engine.draw();
+        
+        if (bWireframe) {                    // wireframe mode  (include axis)
+            ofDisableLighting();
+            ofSetColor(ofColor::red);
+            mars.drawWireframe();
+            lander.drawWireframe();
+            if (bRoverLoaded) {
+                rover.drawWireframe();
+            }
         }
+        else {
+            ofEnableLighting();              // shaded mode
+            mars.drawFaces();
+            lander.drawFaces();
+            
+            if (bRoverLoaded) {
+                rover.drawFaces();
+            }
+        }
+        
+        ofNoFill();
+        camera->end();
     }
-    
-    ofNoFill();
-    camera->end();
-    
+    else{
+        bLanderLoaded = false;
+        gameOver = true;
+        fuel = 0;
+        noise.stop();
+        engine.stop();
+        string noFuel;
+        noFuel += "Game Over, No More Fuel! Click R to Reset";
+        ofDrawBitmapString(noFuel, ofPoint(ofGetWindowWidth()/2, ofGetWindowHeight()/2));
+        
+    }
     string fuelAmount;
-    fuelAmount += "Fuel: " + std::to_string(fuel) + "ms";
+    fuelAmount += "Fuel: " + std::to_string(fuel) + " ms remaining";
     ofDrawBitmapString(fuelAmount, ofPoint(10, 20));
 }
 
@@ -229,6 +244,11 @@ void ofApp::keyPressed(int key) {
             break;
         case 'r':
             cam.reset();
+            if(gameOver == true){
+                gameOver = false;
+                fuel = 120000;
+                lander.setPosition(rocket.position.x, rocket.position.y, rocket.position.z);
+            }
             break;
         case 's':
             savePicture();
@@ -258,47 +278,82 @@ void ofApp::keyPressed(int key) {
         case OF_KEY_DEL:
             break;
         case OF_KEY_UP:
-            thrustTime = ofGetElapsedTimeMillis();
-            soundPlayer();
-            thrust.add(ofVec3f(0, .5, 0));
-            engine.setVelocity(ofVec3f(0, -5, 0));
-            engine.start();
-            noise.play();
+            if(gameOver == true){
+                engine.stop();
+            }
+            else{
+                thrustTime = ofGetElapsedTimeMillis();
+                soundPlayer();
+                thrust.add(ofVec3f(0, .5, 0));
+                engine.setVelocity(ofVec3f(0, -5, 0));
+                engine.start();
+                noise.play();
+            }
             break;
         case OF_KEY_DOWN:
-            soundPlayer();
-            thrust.add(ofVec3f(0, -.5, 0));
-            engine.setVelocity(ofVec3f(0, -5, 0));
-            engine.start();
-            noise.play();
+            if(gameOver == true){
+                engine.stop();
+            }
+            else{
+                thrustTime = ofGetElapsedTimeMillis();
+                soundPlayer();
+                thrust.add(ofVec3f(0, -.5, 0));
+                engine.setVelocity(ofVec3f(0, -5, 0));
+                engine.start();
+                noise.play();
+            }
             break;
         case OF_KEY_LEFT:
-            soundPlayer();
-            thrust.add(ofVec3f(-.5, 0, 0));
-            engine.setVelocity(ofVec3f(5, -5, 0));
-            engine.start();
-            noise.play();
+            if(gameOver == true){
+                engine.stop();
+            }
+            else{
+                thrustTime = ofGetElapsedTimeMillis();
+                soundPlayer();
+                thrust.add(ofVec3f(-.5, 0, 0));
+                engine.setVelocity(ofVec3f(5, -5, 0));
+                engine.start();
+                noise.play();
+            }
             break;
         case OF_KEY_RIGHT:
-            soundPlayer();
-            thrust.add(ofVec3f(.5, 0, 0));
-            engine.setVelocity(ofVec3f(-5, -5, 0));
-            engine.start();
-            noise.play();
+            if(gameOver == true){
+                engine.stop();
+            }
+            else{
+                thrustTime = ofGetElapsedTimeMillis();
+                soundPlayer();
+                thrust.add(ofVec3f(.5, 0, 0));
+                engine.setVelocity(ofVec3f(-5, -5, 0));
+                engine.start();
+                noise.play();
+            }
             break;
         case 'z':
-            soundPlayer();
-            thrust.add(ofVec3f(0, 0, 0.5));
-            engine.setVelocity(ofVec3f(0, -5, -5));
-            engine.start();
-            noise.play();
+            if(gameOver == true){
+                engine.stop();
+            }
+            else{
+                thrustTime = ofGetElapsedTimeMillis();
+                soundPlayer();
+                thrust.add(ofVec3f(0, 0, 0.5));
+                engine.setVelocity(ofVec3f(0, -5, -5));
+                engine.start();
+                noise.play();
+            }
             break;
         case 'x':
-            soundPlayer();
-            thrust.add(ofVec3f(0, 0, -0.5));
-            engine.setVelocity(ofVec3f(0, -5, 5));
-            engine.start();
-            noise.play();
+            if(gameOver == true){
+                engine.stop();
+            }
+            else{
+                thrustTime = ofGetElapsedTimeMillis();
+                soundPlayer();
+                thrust.add(ofVec3f(0, 0, -0.5));
+                engine.setVelocity(ofVec3f(0, -5, 5));
+                engine.start();
+                noise.play();
+            }
             break;
         case OF_KEY_F1:
             camera = &cam;
@@ -331,11 +386,6 @@ void ofApp::togglePointsDisplay() {
 
 void ofApp::keyReleased(int key) {
     
-    noise.stop();
-    engine.stop();
-    thrust.set(ofVec3f(0, 0, 0));
-    fuel -= thrustTime;
-    ofResetElapsedTimeCounter();
     switch (key) {
             
         case OF_KEY_ALT:
@@ -346,6 +396,48 @@ void ofApp::keyReleased(int key) {
             bCtrlKeyDown = false;
             break;
         case OF_KEY_SHIFT:
+            break;
+        case OF_KEY_UP:
+            noise.stop();
+            engine.stop();
+            thrust.set(ofVec3f(0, 0, 0));
+            fuel -= thrustTime;
+            ofResetElapsedTimeCounter();
+            break;
+        case OF_KEY_DOWN:
+            noise.stop();
+            engine.stop();
+            thrust.set(ofVec3f(0, 0, 0));
+            fuel -= thrustTime;
+            ofResetElapsedTimeCounter();
+            break;
+        case OF_KEY_LEFT:
+            noise.stop();
+            engine.stop();
+            thrust.set(ofVec3f(0, 0, 0));
+            fuel -= thrustTime;
+            ofResetElapsedTimeCounter();
+            break;
+        case OF_KEY_RIGHT:
+            noise.stop();
+            engine.stop();
+            thrust.set(ofVec3f(0, 0, 0));
+            fuel -= thrustTime;
+            ofResetElapsedTimeCounter();
+            break;
+        case 'z':
+            noise.stop();
+            engine.stop();
+            thrust.set(ofVec3f(0, 0, 0));
+            fuel -= thrustTime;
+            ofResetElapsedTimeCounter();
+            break;
+        case 'x':
+            noise.stop();
+            engine.stop();
+            thrust.set(ofVec3f(0, 0, 0));
+            fuel -= thrustTime;
+            ofResetElapsedTimeCounter();
             break;
         default:
             break;
@@ -665,14 +757,16 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 
 //sound player
 void ofApp::soundPlayer() {
-    if (soundFileLoaded) noise.play();
+    if (soundFileLoaded)
+        noise.play();
 }
 
 // collision detection
 void ofApp::detectCollision() {
     touchPoint = sys.particles[0].position;
     ofVec3f velocity = sys.particles[0].velocity;
-    if (velocity.y > 0) {
+    if (velocity.y > 5) {
+        impulseForce.apply(1.5 * (-velocity * 500));
         return;
     }
     if (octrees.intersect(touchPoint, octrees.root)) {

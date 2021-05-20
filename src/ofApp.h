@@ -103,7 +103,9 @@ public:
     Particle rocket;
     
     ofSoundPlayer noise;
+    
     bool soundFileLoaded = false;
+    bool gameOver = false;
     
     float thrustTime;
     float fuel;
