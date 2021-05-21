@@ -109,6 +109,7 @@ public:
     
     float thrustTime;
     float fuel;
+    float altitudes;
     
     ofLight landing1, landing2, landing3, areaLight;
 };

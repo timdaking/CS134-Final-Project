@@ -13,7 +13,7 @@ void ofApp::setup(){
     bDisplayPoints = false;
     bAltKeyDown = false;
     bCtrlKeyDown = false;
-    bLanderLoaded = false;
+    bLanderLoaded = true;
     bTerrainSelected = true;
     //    ofSetWindowShape(1024, 768);
     cam.setDistance(10);
@@ -30,10 +30,12 @@ void ofApp::setup(){
     
     //load up mars and lander model
     mars.loadModel("geo/mars-low-5x-v2.obj");
-    mars.setScale(4, 4, 4);
+    //mars.loadModel("geo/mars-terrain-v2.obj");
+    mars.setScale(5, 5, 5);
     mars.setScaleNormalization(false);
-    lander.loadModel("geo/lander.obj");
-    lander.setScale(0.4, 0.4, 0.4);
+    //lander.loadModel("geo/lander.obj");
+    lander.loadModel("geo/starship.fbx");
+    lander.setScale(0.03, 0.03, 0.03);
     lander.setScaleNormalization(false);
     
     //camera module
@@ -64,12 +66,12 @@ void ofApp::setup(){
     engine.setRate(600);
     engine.setParticleRadius(.010);
     engine.setEmitterType(DiscEmitter);
-    engine.setLifespan(1);
+    engine.setLifespan(0.5);
     engine.visible = false;
-    rocket.radius = 0.010;
+    rocket.radius = 0.00010;
     
     //rocket lander particles
-    rocket.lifespan = 100;
+    rocket.lifespan = 50;
     rocket.position.set(0, 10, 0);
     lander.setPosition(rocket.position.x, rocket.position.y, rocket.position.z);
     sys.add(rocket);
@@ -96,18 +98,14 @@ void ofApp::setup(){
     areaLight.setAreaLight(10, 10);
     areaLight.setPosition(100,100,100);
     
-    landing1.setup();
-    landing1.enable();
+//    landing1.setup();
+//    landing1.enable();
     landing1.setSpotlight();
     landing1.setScale(.05);
     landing1.setSpotlightCutOff(15);
-    landing1.setAttenuation(2, .001, .001);
-    landing1.setAmbientColor(ofFloatColor(0.1, 0.1, 0.1));
-    landing1.setDiffuseColor(ofFloatColor(1, 1, 1));
-    landing1.setSpecularColor(ofFloatColor(1, 1, 1));
-    landing1.rotate(-10, ofVec3f(1, 0, 0));
-    landing1.rotate(-45, ofVec3f(0, 1, 0));
-    landing1.setPosition(40, 40, 5);
+    landing1.setPosition(40, 40, 200);
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -115,10 +113,11 @@ void ofApp::setup(){
 //
 void ofApp::update() {
     
+    altitudes = sys.particles[0].position.y+6;
     sys.update();
     engine.update();
     engine.setPosition(sys.particles[0].position);
-    lander.setPosition(sys.particles[0].position.x, sys.particles[0].position.y, sys.particles[0].position.z);
+    lander.setPosition(sys.particles[0].position.x, sys.particles[0].position.y+2, sys.particles[0].position.z);
     lander.update();
     detectCollision();
     
@@ -142,7 +141,8 @@ void ofApp::draw() {
         camera->begin();
         ofPushMatrix();
         
-        landing1.draw();
+        //areaLight.draw();
+        //landing1.draw();
         
         
         
@@ -195,6 +195,16 @@ void ofApp::draw() {
     else{
         landed += "Landing Status: Not Landed";
         ofDrawBitmapString(landed, ofPoint(10, 40));
+    }
+    
+    string altitude;
+    if(collided == true){
+        altitude += "Altitude: 0";
+        ofDrawBitmapString(altitude, ofPoint(10, 60));
+    }
+    else{
+        altitude += "Altitude: " + std::to_string(altitudes);
+        ofDrawBitmapString(altitude, ofPoint(10, 60));
     }
 }
 
@@ -396,7 +406,7 @@ void ofApp::togglePointsDisplay() {
 }
 
 void ofApp::keyReleased(int key) {
-    
+    ofResetElapsedTimeCounter();
     switch (key) {
             
         case OF_KEY_ALT:
@@ -774,9 +784,10 @@ void ofApp::soundPlayer() {
 
 // collision detection
 void ofApp::detectCollision() {
-    touchPoint = sys.particles[0].position;
+    touchPoint = sys.particles[0].position+6;
     ofVec3f velocity = sys.particles[0].velocity;
-    cout<<velocity<<endl;
+    //cout<<velocity<<endl;
+    cout<<touchPoint<<endl;
     if (octrees.intersect(touchPoint, octrees.root)) {
         collided = true;
         impulseForce.apply(1.5 * (-velocity * 2));
