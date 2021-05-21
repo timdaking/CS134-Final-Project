@@ -98,12 +98,44 @@ void ofApp::setup(){
     areaLight.setAreaLight(10, 10);
     areaLight.setPosition(100,100,100);
     
-//    landing1.setup();
-//    landing1.enable();
+    landing1.setup();
+    landing1.enable();
     landing1.setSpotlight();
     landing1.setScale(.05);
     landing1.setSpotlightCutOff(15);
-    landing1.setPosition(40, 40, 200);
+    landing1.setAttenuation(2, .001, .001);
+    landing1.setAmbientColor(ofFloatColor(0.1, 0.1, 0.1));
+    landing1.setDiffuseColor(ofFloatColor(1, 1, 1));
+    landing1.setSpecularColor(ofFloatColor(1, 1, 1));
+    landing1.rotate(-10, ofVec3f(1, 0, 0));
+    landing1.rotate(-45, ofVec3f(0, 1, 0));
+    landing1.setPosition(10, 6, 6);
+    
+    landing2.setup();
+    landing2.enable();
+    landing2.setSpotlight();
+    landing2.setScale(.05);
+    landing2.setSpotlightCutOff(15);
+    landing2.setAttenuation(2, .001, .001);
+    landing2.setAmbientColor(ofFloatColor(0.1, 0.1, 0.1));
+    landing2.setDiffuseColor(ofFloatColor(1, 1, 1));
+    landing2.setSpecularColor(ofFloatColor(1, 1, 1));
+    landing2.rotate(-10, ofVec3f(1, 0, 0));
+    landing2.rotate(-45, ofVec3f(0, 1, 0));
+    landing2.setPosition(15, 6, 6);
+    
+    landing3.setup();
+    landing3.enable();
+    landing3.setSpotlight();
+    landing3.setScale(.05);
+    landing3.setSpotlightCutOff(15);
+    landing3.setAttenuation(2, .001, .001);
+    landing3.setAmbientColor(ofFloatColor(0.1, 0.1, 0.1));
+    landing3.setDiffuseColor(ofFloatColor(1, 1, 1));
+    landing3.setSpecularColor(ofFloatColor(1, 1, 1));
+    landing3.rotate(-10, ofVec3f(1, 0, 0));
+    landing3.rotate(-45, ofVec3f(0, 1, 0));
+    landing3.setPosition(20, 6, 6);
     
     
 }
@@ -142,7 +174,7 @@ void ofApp::draw() {
         ofPushMatrix();
         
         //areaLight.draw();
-        //landing1.draw();
+        landing1.draw();
         
         
         
